@@ -6,17 +6,17 @@ import subprocess
 
 
 class atomic_read_team:
-    def __init__(self, yaml_load={}, yaml_decode={}):
+    def __init__(self):
         self.url_base = 'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/'
-        self.helper = '''-ShowDetails
+        self.helper = '''
+        -ShowDetails
         -GetPrereqs
         -CheckPreregs
         -testNumber
         -ShowDetailsBrief
         '''
         self.param = ['-ShowDetails', '-GetPrereqs', '-CheckPreregs', '-testNumber']
-        self.yaml_load = yaml_load
-        self.yaml_decode = yaml_decode
+        self.yaml_decode = ''
         self.active_param = False
         self.technique = ''
 
@@ -25,6 +25,8 @@ class atomic_read_team:
             while True:
                 teq = input('technique Number: ').upper().split(' ')
                 if re.match('T\d*$|T\d*.\d*$', teq[0]) or teq[0] == '-HELP':
+                    if len(teq) == 1:
+                        teq.append(input('oq deseja fazer? '))
                     break
                 else:
                     print('check again....')
@@ -42,11 +44,10 @@ class atomic_read_team:
     def requests(self, teq):
         base = f'{self.url_base}{teq}/{teq}.yaml'
         resp = requests.get(base)
-        if str(resp) == '<Response [200]>':
+        if resp.status_code == 200:
             content = resp.content
             decode_content = content.decode('utf-8')
-            yaml_content = yaml.safe_load(decode_content)
-            self.yaml_load, self.yaml_decode = yaml_content, decode_content
+            self.yaml_decode = decode_content
             return True
         else:
             return False
@@ -57,7 +58,7 @@ class atomic_read_team:
             if x.lower() == '-showdetails':
                 print(self.yaml_decode)
             elif x.lower() == '-showdetailsbrief':
-                tests = self.yaml_load['atomic_tests']
+                tests = yaml.safe_load(self.yaml_decode)['atomic_tests']
                 count = 0
                 for l in tests:
                     count += 1
@@ -104,7 +105,7 @@ class atomic_read_team:
 
 
     def base(self, num, find=''):
-        content = self.yaml_load['atomic_tests'][int(num)-1]
+        content = yaml.safe_load(self.yaml_decode)['atomic_tests'][int(num)-1]
         param = list()
         supported_platforms = content['supported_platforms']
         if "windows" in str(supported_platforms):
@@ -153,3 +154,4 @@ class atomic_read_team:
 if __name__ == '__main__':
     start = atomic_read_team()
     start.input()
+
