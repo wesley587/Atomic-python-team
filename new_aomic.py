@@ -2,6 +2,7 @@ import re
 import argparse
 import requests
 import yaml
+import subprocess
 import os
 
 arguments = argparse.ArgumentParser()
@@ -24,7 +25,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             if self.testnumber and not self.action:
                 self.execute()
             elif self.action:
-                print('issmsmskm')
+                self.parsing()
 
         def requests(self):
             resp = requests.get(f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.uuid}/{self.uuid}.yaml')
@@ -38,10 +39,29 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             content = yaml.safe_load(self.content)
             command = content['atomic_tests'][int(self.testnumber) -1]['executor']['command'].split('\n')
             shell = content['atomic_tests'][int(self.testnumber) -1]['executor']['name']
-            [os.system(x) for x in command if x != '']
+            [os.system(x) if shell == 'command_prompt' else subprocess.Popen(['powershell.exe', '-command', x]) for x in command if x != '']
+
+        def parsing(self):
+            if self.action.lower() == 'getprereqs':
+                self.getprereqs()
+
+        def getprereqs(self):
+            content = yaml.safe_load(self.content)
+            dependencies = content['atomic_tests'][int(self.testnumber) - 1]['dependencies']
+            shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
+            print(dependencies)
+            for dependencie in dependencies:
+                prer = dependencie['prereq_command']
+                print(prer)
+                print(shell)
+
+
+
+
 
     start = atomic()
     start.main()
 else:
     print('Technique not found, try again')
+
 
