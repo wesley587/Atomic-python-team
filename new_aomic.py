@@ -48,20 +48,38 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
         def getprereqs(self):
             content = yaml.safe_load(self.content)
             dependencies = content['atomic_tests'][int(self.testnumber) - 1]['dependencies']
-            shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
-            print(dependencies)
+            try:
+                shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
+            except:
+                shell = 'powershell'
             for dependencie in dependencies:
-                prer = dependencie['prereq_command']
-                print(prer)
-                print(shell)
+                prep_comm = dependencie['prereq_command']
+                get_prep_comm = dependencie['get_prereq_command']
+                if shell == 'powershell':
+                    try:
+                        subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
+                    except:
+                        subprocess.check_output(['powershell.exe', get_prep_comm if not re.findall('#{\w*}', get_prep_comm) else self.input_arguments(get_prep_comm)], shell=True)
+                else:
+                    subprocess.check_output([prep_comm, prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
 
+        def input_arguments(self, command):
+            print('-----------command -------------------')
+            print(command)
+            input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
+            print(input_arguments)
+            return 'cd'
 
-
+        def if_contains(self, k, v):
+            try:
+                value = k[v]
+                return value
+            except:
+                return ''
 
 
     start = atomic()
     start.main()
 else:
     print('Technique not found, try again')
-
 
