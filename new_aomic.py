@@ -69,6 +69,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
                     except:
+                        print(get_prep_comm)
                         subprocess.check_output(['powershell.exe', get_prep_comm if not re.findall('#{\w*}', get_prep_comm) else self.input_arguments(get_prep_comm)], shell=True)
                 else:
                     subprocess.check_output([prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
@@ -99,15 +100,14 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             with open(f'{path}{path_file}', 'w') as file:
                 file.write(resp.content.decode('utf-8'))
                 file.close()
-            return f'{path}{path_file.replace("/","")}'
+            return f'{path}{path_file.replace}'
 
         def showdetailsbrief(self):
             yaml_contet = yaml.safe_load(self.content)['atomic_tests']
-            [print(f'[{c}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if 'windows' in yaml_contet[c]['supported_platforms']]
+            [print(f'[{c+1}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if 'windows' in yaml_contet[c]['supported_platforms']]
 
 
     start = atomic()
     start.main()
 else:
     print('Technique not found, try again')
-
