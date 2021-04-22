@@ -61,14 +61,16 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
                     except:
                         subprocess.check_output(['powershell.exe', get_prep_comm if not re.findall('#{\w*}', get_prep_comm) else self.input_arguments(get_prep_comm)], shell=True)
                 else:
-                    subprocess.check_output([prep_comm, prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
+                    subprocess.check_output([prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
 
         def input_arguments(self, command):
-            print('-----------command -------------------')
-            print(command)
             input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
-            print(input_arguments)
-            return 'cd'
+            parser = re.findall('#{\w*}', command)
+            a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
+            print(a)
+            for ex, de in zip(parser, a):
+                command = command.replace(ex, de)
+            return command
 
         def if_contains(self, k, v):
             try:
@@ -82,4 +84,5 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
     start.main()
 else:
     print('Technique not found, try again')
+
 
