@@ -39,7 +39,12 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             content = yaml.safe_load(self.content)
             command = content['atomic_tests'][int(self.testnumber) -1]['executor']['command'].split('\n')
             shell = content['atomic_tests'][int(self.testnumber) -1]['executor']['name']
-            [os.system(x) if shell == 'command_prompt' else subprocess.Popen(['powershell.exe', '-command', x]) for x in command if x != '']
+            [os.system(
+                x if not re.findall('#{\w*}', x) else self.input_arguments(
+                    x)) if shell == 'command_prompt' else subprocess.Popen(
+                ['powershell.exe', '-command', x if not re.findall('#{\w*}', x) else self.input_arguments(x)]) for x in
+             command if
+             x != '']
 
         def parsing(self):
             if self.action.lower() == 'getprereqs':
@@ -69,20 +74,31 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
             print(a)
             for ex, de in zip(parser, a):
-                command = command.replace(ex, de)
+                command = command.replace(ex, de if not 'PathToAtomicsFolder' in de else self.PathToAtomicsFolder(de))
             return command
 
-        def if_contains(self, k, v):
+        def PathToAtomicsFolder(self, default):
+            path = subprocess.check_output(['cd'], shell=True)
+            path = path.decode('utf-8').replace('\r', '').replace('\n', '')
+            path_file = default.replace("PathToAtomicsFolder", "").replace('\\', '/')
+            url = f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics{default}'
+            resp = requests.get(url)
+            local_f, local_i = path_file.rfind('/'), path_file.find('/')
+            print(path_file[local_i+1: local_f])
             try:
-                value = k[v]
-                return value
+                dirs = os.path.join(path, path_file[local_i+1: local_f])
+                print(dirs)
+                os.makedirs(dirs)
+
             except:
-                return ''
+                pass
+            with open(f'{path}{path_file}', 'w') as file:
+                file.write(resp.content.decode('utf-8'))
+                file.close()
+            return f'{path}{path_file.replace("/","")}'
 
 
     start = atomic()
     start.main()
 else:
     print('Technique not found, try again')
-
-
