@@ -27,6 +27,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             elif self.action:
                 self.parsing()
 
+
         def requests(self):
             resp = requests.get(f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.uuid}/{self.uuid}.yaml')
             if resp.status_code == 200:
@@ -49,6 +50,10 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
         def parsing(self):
             if self.action.lower() == 'getprereqs':
                 self.getprereqs()
+            elif self.action.lower() == 'showdetails':
+                print(self.content)
+            elif self.action.lower() == 'showdetailsbrief':
+                self.showdetailsbrief()
 
         def getprereqs(self):
             content = yaml.safe_load(self.content)
@@ -72,7 +77,6 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
             parser = re.findall('#{\w*}', command)
             a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
-            print(a)
             for ex, de in zip(parser, a):
                 command = command.replace(ex, de if not 'PathToAtomicsFolder' in de else self.PathToAtomicsFolder(de))
             return command
@@ -97,8 +101,13 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
                 file.close()
             return f'{path}{path_file.replace("/","")}'
 
+        def showdetailsbrief(self):
+            yaml_contet = yaml.safe_load(self.content)['atomic_tests']
+            [print(f'[{c}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if 'windows' in yaml_contet[c]['supported_platforms']]
+
 
     start = atomic()
     start.main()
 else:
     print('Technique not found, try again')
+
