@@ -4,6 +4,23 @@ import requests
 import yaml
 import subprocess
 import os
+import sys
+
+first_execution = True
+
+if first_execution:
+    os.system('pip install pyyaml')
+
+    with open(os.path.basename(__file__), 'r') as f:
+        _content = f.read()
+        f.close()
+
+    with open(os.path.basename(__file__), 'w') as f:
+        _content = _content.replace('first_execution = True', 'first_execution = False')
+        f.write(_content)
+        f.close()
+
+    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
 arguments = argparse.ArgumentParser()
 arguments.add_argument('-t', action='store', dest='uuid', help='Technique number ', required=True)
@@ -35,7 +52,6 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
 
         def requests(self):
             resp = requests.get(f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.uuid}/{self.uuid}.yaml')
-            
             if resp.status_code == 200:
                 self.content = resp.content.decode('utf-8')
             else:
@@ -46,7 +62,6 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             content = yaml.safe_load(self.content)
             command = content['atomic_tests'][int(self.testnumber) -1]['executor']['command'].split('\n')
             shell = content['atomic_tests'][int(self.testnumber) -1]['executor']['name']
-            
             [os.system(
                 x if not re.findall('#{\w*}', x) else self.input_arguments(
                     x)) if shell == 'command_prompt' else subprocess.Popen(
@@ -65,16 +80,13 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
         def getprereqs(self):
             content = yaml.safe_load(self.content)
             dependencies = content['atomic_tests'][int(self.testnumber) - 1]['dependencies']
-            
             try:
                 shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
             except:
                 shell = 'powershell'
-                
             for dependencie in dependencies:
                 prep_comm = dependencie['prereq_command']
                 get_prep_comm = dependencie['get_prereq_command']
-                
                 if shell == 'powershell':
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
@@ -88,9 +100,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
         def input_arguments(self, command):
             input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
             parser = re.findall('#{\w*}', command)
-            
             a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
-            
             for ex, de in zip(parser, a):
                 command = command.replace(ex, de if not 'PathToAtomicsFolder' in de else self.PathToAtomicsFolder(de))
             return command
@@ -103,19 +113,16 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
             resp = requests.get(url)
             local_f, local_i = path_file.rfind('/'), path_file.find('/')
             print(path_file[local_i+1: local_f])
-            
             try:
                 dirs = os.path.join(path, path_file[local_i+1: local_f])
                 print(dirs)
                 os.makedirs(dirs)
             except:
                 pass
-            
             with open(f'{path}{path_file}', 'w') as file:
                 file.write(resp.content.decode('utf-8'))
                 file.close()
             path_file = path_file.replace("/", "\\")
-            
             return f'{path}{path_file}'
 
         def showdetailsbrief(self):
@@ -127,3 +134,4 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
     start.main()
 else:
     print('Technique not found, try again')
+
