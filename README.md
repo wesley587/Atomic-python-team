@@ -8,7 +8,7 @@
 
 ## Atomic python team
 
-Atomic python is a python script that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) using a shell to run,it is necessary to have the python intalled on your envovironment
+Atomic python team is a python script that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) using a shell to run,it is necessary to have the python intalled on your envovironment
 
 
 ### Usage
