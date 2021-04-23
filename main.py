@@ -1,15 +1,8 @@
-import re
-import argparse
-import requests
-import yaml
-import subprocess
-import os
-import sys
-
 first_execution = True
 
 if first_execution:
     os.system('pip install pyyaml')
+    os.system('pip install requests')
 
     with open(os.path.basename(__file__), 'r') as f:
         _content = f.read()
@@ -22,6 +15,16 @@ if first_execution:
 
     os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
+    
+import re
+import argparse
+import requests
+import yaml
+import subprocess
+import os
+import sys    
+    
+    
 arguments = argparse.ArgumentParser()
 arguments.add_argument('-t', action='store', dest='uuid', help='Technique number ', required=True)
 arguments.add_argument('-testnumber', action='store', dest='testnumber', required=False, help='Test number, to view the number of a test pass -action showdetailsbrief')
