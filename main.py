@@ -34,7 +34,7 @@ clenup (Execute the clenup command)
 
 parse = arguments.parse_args()
 
-if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
+if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
     class atomic:
         def __init__(self):
             self.uuid = parse.uuid
