@@ -44,7 +44,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
 
         def main(self):
             self.requests()
-            if self.testnumber and not self.action:
+            if self.testnumber and not self.action or self.action == 'cleanup':
                 self.execute()
             elif self.action:
                 self.parsing()
@@ -55,12 +55,15 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             if resp.status_code == 200:
                 self.content = resp.content.decode('utf-8')
             else:
-                print('Not found...')
+                print('Technique not found, try again....')
                 exit()
 
         def execute(self):
             content = yaml.safe_load(self.content)
-            command = content['atomic_tests'][int(self.testnumber) -1]['executor']['command'].split('\n')
+            if not self.action:
+                command = content['atomic_tests'][int(self.testnumber) -1]['executor']['command'].split('\n')
+            else:
+                command = content['atomic_tests'][int(self.testnumber) -1]['executor']['cleanup_command'].split('\n')
             shell = content['atomic_tests'][int(self.testnumber) -1]['executor']['name']
             [os.system(
                 x if not re.findall('#{\w*}', x) else self.input_arguments(
@@ -133,5 +136,4 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
     start = atomic()
     start.main()
 else:
-    print('Technique not found, try again')
-
+    print('Technique not found, try again....')
