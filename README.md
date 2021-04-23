@@ -12,7 +12,7 @@ Atomic python team is a script that simulates the [***Atomic techniques***](http
 
 
 ### Usage
-- Copy and paste or clone the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
+- Clone or Copy and paste the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
 - Run a shell
 - Is necessary has the pthon language install 
 
