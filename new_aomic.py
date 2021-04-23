@@ -6,9 +6,14 @@ import subprocess
 import os
 
 arguments = argparse.ArgumentParser()
-arguments.add_argument('-t', action='store', dest='uuid', help='', required=True)
-arguments.add_argument('-testnumber', action='store', dest='testnumber', required=False)
-arguments.add_argument('-action', action='store', dest='action', required=False)
+arguments.add_argument('-t', action='store', dest='uuid', help='Technique number ', required=True)
+arguments.add_argument('-testnumber', action='store', dest='testnumber', required=False, help='Test number, to view the number of a test pass -action showdetailsbrief')
+arguments.add_argument('-action', action='store', dest='action', required=False, help='''Actions:
+getprereqs (Install all prereqs of a test)
+showdetails (Show details of a technique)
+showdetailsbrief (Show the avaliable tests)
+clenup (Execute the clenup command)
+''')
 
 parse = arguments.parse_args()
 
@@ -69,8 +74,9 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
                     except:
+
+                        [subprocess.check_output(['powershell.exe', x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in get_prep_comm.split('\n')]
                         print(get_prep_comm)
-                        subprocess.check_output(['powershell.exe', get_prep_comm if not re.findall('#{\w*}', get_prep_comm) else self.input_arguments(get_prep_comm)], shell=True)
                 else:
                     subprocess.check_output([prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)], shell=True)
 
@@ -94,13 +100,13 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid):
                 dirs = os.path.join(path, path_file[local_i+1: local_f])
                 print(dirs)
                 os.makedirs(dirs)
-
             except:
                 pass
             with open(f'{path}{path_file}', 'w') as file:
                 file.write(resp.content.decode('utf-8'))
                 file.close()
-            return f'{path}{path_file.replace}'
+            path_file = path_file.replace("/", "\\")
+            return f'{path}{path_file}'
 
         def showdetailsbrief(self):
             yaml_contet = yaml.safe_load(self.content)['atomic_tests']
