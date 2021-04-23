@@ -4,7 +4,7 @@ Atomic python is a python script that simulates the [***Atomic techniques***](ht
 
 
 ### Usage
-- Copy and paste or clone the [***file***](link) in your enviroment
+- Copy and paste or clone the [***file***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
 - Run a shell
 - Is necessary has the pthon language install 
 
