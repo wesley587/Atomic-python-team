@@ -41,6 +41,8 @@ showdetails (Show details of a technique)
 showdetailsbrief (Show the avaliable tests)
 clenup (Execute the clenup command)
 ''')
+arguments.add_argument('-except_time', action='store', dest='except_time', required=False, default=120,
+                help='This parameter is used to define the max time that the program wait until generate a exception')
 
 parse = arguments.parse_args()
 
@@ -51,7 +53,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             self.testnumber = parse.testnumber
             self.action = parse.action
             self.content = {}
-            self.except_time = 120
+            self.except_time = parse.except_time
 
         def main(self):
             self.requests()
@@ -166,3 +168,5 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
         start.main()
 else:
     print('Technique not found, try again....')
+
+
