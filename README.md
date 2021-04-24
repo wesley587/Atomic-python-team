@@ -31,6 +31,7 @@ python main.py -t T1082 -action ShowDetailsBrief
 | --- | --- | --- |
 | -t | Is used to specify the technique number | -t T1082 |
 | -action | Use -action the specify some action | -action |
+| -except_time | Define the max time to run the file | -except_time 120 |
 
 ### ***Action parameters***
 | command |descrpiton | how to use |
