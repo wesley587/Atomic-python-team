@@ -5,9 +5,11 @@
 
 import subprocess
 import os
-import sys
+import time
 import re
 import argparse
+import multiprocessing
+
 
 first_execution = True
 
@@ -23,8 +25,6 @@ if first_execution:
         _content = _content.replace('first_execution = True', 'first_execution = False')
         f.write(_content)
         f.close()
-
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
 
 import requests
@@ -51,11 +51,20 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             self.testnumber = parse.testnumber
             self.action = parse.action
             self.content = ''
+            self.except_time = 120
 
         def main(self):
             self.requests()
             if self.testnumber and not self.action or self.action == 'cleanup':
-                self.execute()
+                initial_time = time.time()
+                mult = multiprocessing.Process(target=self.execute)
+                mult.start()
+                while True:
+                    if int(time.time() - initial_time) >= self.except_time:
+                        mult.terminate()
+                    if not mult.is_alive():
+                        break
+                    time.sleep(1)
             elif self.action:
                 self.parsing()
 
@@ -81,6 +90,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
                 ['powershell.exe', '-command', x if not re.findall('#{\w*}', x) else self.input_arguments(x)]) for x in
              command if
              x != '']
+
 
         def parsing(self):
             if self.action.lower() == 'getprereqs':
@@ -149,8 +159,9 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             [print(f'[{c + 1}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if
              'windows' in yaml_contet[c]['supported_platforms']]
 
-
-    start = atomic()
-    start.main()
+    if __name__ == '__main__':
+        start = atomic()
+        start.main()
 else:
     print('Technique not found, try again....')
+time.sleep(2)
