@@ -40,6 +40,10 @@ python main.py -t T1082 -action ShowDetailsBrief
 | ShowDetailsBrief | See the available technique for your enviroment| -action ShowDetailsBrief |
 | Cleanup | Case a technique save a file in your environment use this command to delete | -action Cleanup|
 
+### Cache folder
+
+The cache foler is used to store file case the technique has a additional file to work
+
 
 ### examples 
 
