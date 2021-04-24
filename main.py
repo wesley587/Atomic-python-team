@@ -50,11 +50,12 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             self.uuid = parse.uuid
             self.testnumber = parse.testnumber
             self.action = parse.action
-            self.content = ''
+            self.content = {}
             self.except_time = 120
 
         def main(self):
             self.requests()
+            print(f'Running...\n[*]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.testnumber) -1]["name"]}')
             if self.testnumber and not self.action or self.action == 'cleanup':
                 initial_time = time.time()
                 mult = multiprocessing.Process(target=self.execute)
@@ -84,12 +85,13 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             else:
                 command = content['atomic_tests'][int(self.testnumber) - 1]['executor']['cleanup_command'].split('\n')
             shell = content['atomic_tests'][int(self.testnumber) - 1]['executor']['name']
-            [os.system(
+            command_exit = [subprocess.check_output([
                 x if not re.findall('#{\w*}', x) else self.input_arguments(
-                    x)) if shell == 'command_prompt' else subprocess.Popen(
-                ['powershell.exe', '-command', x if not re.findall('#{\w*}', x) else self.input_arguments(x)]) for x in
+                x)], shell=True) if shell == 'command_prompt' else subprocess.check_output(
+                ['powershell.exe', x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in
              command if
              x != '']
+            [print(x.decode('windows-1252')) for x in command_exit]
 
 
         def parsing(self):
@@ -164,4 +166,3 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
         start.main()
 else:
     print('Technique not found, try again....')
-time.sleep(2)
