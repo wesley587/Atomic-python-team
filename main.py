@@ -9,9 +9,10 @@ import time
 import re
 import argparse
 import multiprocessing
-
+import platform
 
 first_execution = True
+system = platform.platform().lower()
 
 if first_execution:
     os.system('pip install pyyaml')
@@ -117,8 +118,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
                 if shell == 'powershell':
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}',
-                                                                                               prep_comm) else self.input_arguments(
-                            prep_comm)], shell=True)
+                                                                prep_comm) else self.input_arguments(prep_comm)], shell=True)
                     except:
 
                         [subprocess.check_output(
@@ -161,7 +161,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
         def showdetailsbrief(self):
             yaml_contet = yaml.safe_load(self.content)['atomic_tests']
             [print(f'[{c + 1}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if
-             'windows' in yaml_contet[c]['supported_platforms']]
+             system.split('-')[0] in yaml_contet[c]['supported_platforms']]
 
     if __name__ == '__main__':
         start = atomic()
