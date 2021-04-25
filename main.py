@@ -27,22 +27,21 @@ if first_execution:
         f.write(_content)
         f.close()
 
-
 import requests
 import yaml
 
 
 arguments = argparse.ArgumentParser()
-arguments.add_argument('-t', action='store', dest='uuid', help='Technique number ', required=True)
-arguments.add_argument('-testnumber', action='store', dest='testnumber', required=False,
+arguments.add_argument('-t', '-T', action='store', dest='uuid', help='Technique number ', required=True)
+arguments.add_argument('-testnumber', '-TESTNUMBER' '-TestNumber', action='store', dest='testnumber', required=False,
                        help='Test number, to view the number of a test pass -action showdetailsbrief')
-arguments.add_argument('-action', action='store', dest='action', required=False, help='''Actions:
+arguments.add_argument('-action', '-ACTION', '-Action', action='store', dest='action', required=False, help='''Actions:
 getprereqs (Install all prereqs of a test)
 showdetails (Show details of a technique)
 showdetailsbrief (Show the avaliable tests)
 clenup (Execute the clenup command)
 ''')
-arguments.add_argument('-except_time', action='store', dest='except_time', required=False, default=120,
+arguments.add_argument('-except_time', '-Except_Time', '-EXCEPT_TIME', action='store', dest='except_time', required=False, default=120,
                 help='This parameter is used to define the max time that the program wait until generate a exception')
 
 parse = arguments.parse_args()
@@ -118,7 +117,8 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
                 if shell == 'powershell':
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}',
-                                                                prep_comm) else self.input_arguments(prep_comm)], shell=True)
+                                                                prep_comm) else self.input_arguments(
+                            prep_comm)], shell=True)
                     except:
 
                         [subprocess.check_output(
