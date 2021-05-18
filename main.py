@@ -15,6 +15,7 @@ first_execution = True
 system = platform.platform().lower()
 
 if first_execution:
+
     os.system('pip install pyyaml')
     os.system('pip install requests')
 
@@ -29,7 +30,6 @@ if first_execution:
 
 import requests
 import yaml
-
 
 arguments = argparse.ArgumentParser()
 arguments.add_argument('-t', '-T', action='store', dest='uuid', help='Technique number ', required=True)
@@ -46,7 +46,8 @@ arguments.add_argument('-except_time', '-Except_Time', '-EXCEPT_TIME', action='s
 
 parse = arguments.parse_args()
 
-if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
+if re.match(r'T\d+(.\d+|)$', parse.uuid.upper()):
+    
     class atomic:
         def __init__(self):
             self.uuid = parse.uuid
@@ -57,11 +58,16 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
 
         def main(self):
             self.requests()
-            print(f'Running...\n[*]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.testnumber) -1]["name"]}')
+            if self.testnumber:
+                print(f'Running...\n[*]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.testnumber) -1]["name"]}\n')
+            else:
+                print(f'Running...\n[*]{yaml.safe_load(self.content)["attack_technique"]}\n')
+
             if self.testnumber and not self.action or self.action == 'cleanup':
                 initial_time = time.time()
                 mult = multiprocessing.Process(target=self.execute)
                 mult.start()
+
                 while True:
                     if int(time.time() - initial_time) >= self.except_time:
                         mult.terminate()
@@ -74,53 +80,67 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
         def requests(self):
             resp = requests.get(
                 f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.uuid}/{self.uuid}.yaml')
+
             if resp.status_code == 200:
                 self.content = resp.content.decode('utf-8')
+
             else:
                 print('Technique not found, try again....')
                 exit()
 
         def execute(self):
             content = yaml.safe_load(self.content)
+
             if not self.action:
                 command = content['atomic_tests'][int(self.testnumber) - 1]['executor']['command'].split('\n')
+
             else:
                 command = content['atomic_tests'][int(self.testnumber) - 1]['executor']['cleanup_command'].split('\n')
+
             shell = content['atomic_tests'][int(self.testnumber) - 1]['executor']['name']
-            command_exit = [subprocess.check_output([
+
+            command_exit = [subprocess.check_output(['powershell.exe',
                 x if not re.findall('#{\w*}', x) else self.input_arguments(
-                x)], shell=True) if shell == 'command_prompt' else subprocess.check_output(
-                ['powershell.exe', x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in
+                x)], shell=True) if shell == 'powershell' else subprocess.check_output(
+                [x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in
              command if
              x != '']
+
             [print(x.decode('windows-1252')) for x in command_exit]
 
 
         def parsing(self):
             if self.action.lower() == 'getprereqs':
                 self.getprereqs()
+
             elif self.action.lower() == 'showdetails':
                 print(self.content)
+
             elif self.action.lower() == 'showdetailsbrief':
                 self.showdetailsbrief()
 
         def getprereqs(self):
             content = yaml.safe_load(self.content)
             dependencies = content['atomic_tests'][int(self.testnumber) - 1]['dependencies']
+            
             try:
                 shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
+            
             except:
                 shell = 'powershell'
+            
             for dependencie in dependencies:
                 prep_comm = dependencie['prereq_command']
                 get_prep_comm = dependencie['get_prereq_command']
+            
                 if shell == 'powershell':
+            
                     try:
                         subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}',
                                                                 prep_comm) else self.input_arguments(
                             prep_comm)], shell=True)
+            
                     except:
-
                         [subprocess.check_output(
                             ['powershell.exe', x if not re.findall('#{\w*}', x) else self.input_arguments(x)],
                             shell=True) for x in get_prep_comm.split('\n')]
@@ -134,6 +154,7 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
             parser = re.findall('#{\w*}', command)
             a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
+
             for ex, de in zip(parser, a):
                 command = command.replace(ex, de if not 'PathToAtomicsFolder' in de else self.PathToAtomicsFolder(de))
             return command
@@ -146,12 +167,15 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
             resp = requests.get(url)
             local_f, local_i = path_file.rfind('/'), path_file.find('/')
             print(path_file[local_i + 1: local_f])
+
             try:
                 dirs = os.path.join(path, path_file[local_i + 1: local_f])
                 print(dirs)
                 os.makedirs(dirs)
+            
             except:
                 pass
+            
             with open(f'{path}{path_file}', 'w') as file:
                 file.write(resp.content.decode('utf-8'))
                 file.close()
@@ -168,5 +192,4 @@ if re.match(r'T\d*$|T\d*.\d*$', parse.uuid.upper()):
         start.main()
 else:
     print('Technique not found, try again....')
-
 
