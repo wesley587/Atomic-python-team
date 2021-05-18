@@ -1,2 +1,3 @@
 requests
 pyyaml
+# The main.py file install this libs automatically
