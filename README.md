@@ -12,7 +12,7 @@ Atomic python team is a script that simulates the [***Atomic techniques***](http
 
 
 ### Usage
-- Clone or Copy and paste the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
+- Clone the repository or Copy and paste the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
 - Run a shell
 - Is necessary has the pthon language install 
 
@@ -29,7 +29,8 @@ python main.py -t T1082 -action ShowDetailsBrief
 ### ***Parameters***
 | Command | Description | How to use |
 | --- | --- | --- |
-| -t | Is used to specify the technique number | -t T1082 |
+| -h | Is used to seen all parameters | -h, --help | 
+| -t | Is used to specify the technique number | -t or -T T1082 |
 | -action | Use -action the specify some action | -action |
 | -except_time | Define the max time to run the file | -except_time 120 |
 
@@ -59,4 +60,5 @@ python main.p -t T1220 -action cleanup -testnumber 1
 ------------------------------------------------------
 python main.py -t T1234 -TESTNUMBER 1 -except_time 100
 ------------------------------------------------------
+python main.py -t T12345 -h
 ```
