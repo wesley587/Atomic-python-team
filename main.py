@@ -10,14 +10,29 @@ import re
 import argparse
 import multiprocessing
 import platform
+from colorama import Fore, Style
 
 first_execution = True
 system = platform.platform().lower()
 
 if first_execution:
+    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Checking if pyyaml module exist')
+    validation = os.popen('pip3 show pyyaml').read()
+    if not validation:
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Instaling pyyaml module')
+        os.system('pip install pyyaml')
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Successful instaling pyyaml module')
+    else:
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] pyyaml module already exists')
 
-    os.system('pip install pyyaml')
-    os.system('pip install requests')
+    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Checking if requests module exist')
+    validation = os.popen('pip3 show requests').read()
+    if not validation:
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Instaling requests module')
+        os.system('pip install requests')
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Successful instaling requests module')
+    else:
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] requests module already exists')
 
     with open(os.path.basename(__file__), 'r') as f:
         _content = f.read()
