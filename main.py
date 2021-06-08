@@ -61,7 +61,6 @@ class atomic:
         if not re.match(r'(T|t)\d+(.\d+|)$', parse.uuid.upper()):
             print(Fore.RED + f'NOT FOUND {parse.uuid} TECHNIQUE' + Style.RESET_ALL)
         self.control = self.generate_dict()
-        self.uuid = parse.uuid
         self.testnumber = parse.testnumber
         self.content = {}
         self.except_time = parse.except_time
@@ -115,7 +114,7 @@ class atomic:
 
     def requests(self):
         resp = requests.get(
-            f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.uuid}/{self.uuid}.yaml')
+            f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.control["uuid"]}/{self.control["uuid"]}.yaml')
 
         if resp.status_code == 200:
             self.content = resp.content.decode('utf-8')
@@ -227,4 +226,5 @@ class atomic:
 if __name__ == '__main__':
     start = atomic()
     start.main()
+
 
