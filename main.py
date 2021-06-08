@@ -61,7 +61,6 @@ class atomic:
         if not re.match(r'(T|t)\d+(.\d+|)$', parse.uuid.upper()):
             print(Fore.RED + f'NOT FOUND {parse.uuid} TECHNIQUE' + Style.RESET_ALL)
         self.control = self.generate_dict()
-        self.testnumber = parse.testnumber
         self.content = {}
         self.except_time = parse.except_time
     
@@ -69,8 +68,7 @@ class atomic:
         values_dict = dict()
         values_dict['action'] = self.mode()
         values_dict['uuid'] = parse.uuid
-        if parse.testnumber:
-            values_dict['testnumber'] = parse.testnumber
+        values_dict['testnumber'] = parse.testnumber
         return values_dict
         
         
@@ -93,8 +91,8 @@ class atomic:
     # Inicio
     def main(self):
         self.requests()
-        if self.testnumber:
-            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.testnumber) -1]["name"]}\n')
+        if self.control['testnumber']:
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
         else:
             print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {yaml.safe_load(self.content)["attack_technique"]}\n')
         print(self.control)
@@ -128,12 +126,12 @@ class atomic:
 
 
         if self.control['action'] == 'execult':
-            command = content['atomic_tests'][int(self.testnumber) - 1]['executor']['command'].split('\n')
+            command = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['command'].split('\n')
 
         else:
-            command = content['atomic_tests'][int(self.testnumber) - 1]['executor']['cleanup_command'].split('\n')
+            command = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['cleanup_command'].split('\n')
 
-        shell = content['atomic_tests'][int(self.testnumber) - 1]['executor']['name']
+        shell = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['name']
 
         command_exit = [subprocess.check_output(['powershell.exe',
             x if not re.findall('#{\w*}', x) else self.input_arguments(
@@ -157,10 +155,10 @@ class atomic:
 
     def getprereqs(self):
         content = yaml.safe_load(self.content)
-        dependencies = content['atomic_tests'][int(self.testnumber) - 1]['dependencies']
+        dependencies = content['atomic_tests'][int(self.control["testnumber"]) - 1]['dependencies']
         
         try:
-            shell = content['atomic_tests'][int(self.testnumber) - 1]['dependency_executor_name']
+            shell = content['atomic_tests'][int(self.control["testnumber"]) - 1]['dependency_executor_name']
         
         except:
             shell = 'powershell'
@@ -187,7 +185,7 @@ class atomic:
                     shell=True)
 
     def input_arguments(self, command):
-        input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.testnumber) - 1]['input_arguments']
+        input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.control["testnumber"]) - 1]['input_arguments']
         parser = re.findall('#{\w*}', command)
         a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
 
@@ -226,5 +224,4 @@ class atomic:
 if __name__ == '__main__':
     start = atomic()
     start.main()
-
 
