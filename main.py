@@ -59,9 +59,9 @@ class atomic:
     def __init__(self):
 
         if not re.match(r'(T|t)\d+(.\d+|)$', parse.uuid.upper()):
-            print(Fore.RED + f'NOT FOUND {parse.uuid} TECHNIQUE' + Style.RESET_ALL)
+            print(Fore.RED + f'{parse.uuid} INVALID TECHNIQUE' + Style.RESET_ALL)
+            exit(0)
         self.control = self.generate_dict()
-        self.content = {}
         self.except_time = parse.except_time
     
     def generate_dict(self):
@@ -88,7 +88,6 @@ class atomic:
             print(Fore.RED + 'ERROR, PASS AN ARGUMENT', Style.RESET_ALL)
             exit(0)
 
-    # Inicio
     def main(self):
         self.requests()
         if self.control['testnumber']:
@@ -117,7 +116,7 @@ class atomic:
             self.control['content'] = resp.content.decode('utf-8')
 
         else:
-            print('Technique not found, try again....')
+            print(Fore.RED + 'Technique not found, try again....' + Style.RESET_ALL)
             exit()
 
     def execute(self):
