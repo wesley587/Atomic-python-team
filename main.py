@@ -1,7 +1,6 @@
 import subprocess
 import os
 import time
-import re
 import argparse
 import multiprocessing
 from platform import platform
@@ -53,27 +52,21 @@ arguments.add_argument('--cleanup', '-c', dest='cleanup', const=True, nargs='?')
 arguments.add_argument('-sdb', '--showdetailsbrief', dest='showdetailsbrief', const=True, nargs='?')
 arguments.add_argument('-sd', '--showdetails', dest='showdetails', const=True, nargs='?')
 arguments.add_argument('-gp', '--getprereqs', dest='getprereqs', const=True, nargs='?')
-parse = arguments.parse_args()
 
 class atomic:
     def __init__(self):
-
-        if not re.match(r'(T|t)\d+(.\d+|)$', parse.uuid.upper()):
-            print(Fore.RED + f'{parse.uuid} INVALID TECHNIQUE' + Style.RESET_ALL)
-            exit(0)
-        self.control = self.generate_dict()
+        parse = arguments.parse_args()
+        self.control = self.generate_dict(parse)
         self.except_time = parse.except_time
     
-    def generate_dict(self):
+    def generate_dict(self, parse):
         values_dict = dict()
-        values_dict['action'] = self.mode()
+        values_dict['action'] = self.mode(parse)
         values_dict['uuid'] = parse.uuid
         values_dict['testnumber'] = parse.testnumber
         return values_dict
         
-        
-    
-    def mode(self):
+    def mode(self, parse):
         if parse.cleanup:
             return 'cleanup'
         elif parse.showdetails:
@@ -110,7 +103,7 @@ class atomic:
 
     def requests(self):
         resp = requests.get(
-            f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.control["uuid"]}/{self.control["uuid"]}.yaml')
+            f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.control["uuid"].upper()}/{self.control["uuid"].upper()}.yaml')
 
         if resp.status_code == 200:
             self.control['content'] = resp.content.decode('utf-8')
