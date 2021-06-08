@@ -4,11 +4,11 @@ import time
 import re
 import argparse
 import multiprocessing
-import platform
+from platform import platform
 from colorama import Fore, Style
 
 first_execution = True
-system = platform.platform().lower()
+system = platform().lower()
 
 if first_execution:
     print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Checking if pyyaml module exist')
@@ -29,6 +29,8 @@ if first_execution:
     else:
         print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] requests module already exists')
 
+        
+
     with open(os.path.basename(__file__), 'r') as f:
         _content = f.read()
         f.close()
@@ -45,14 +47,12 @@ arguments = argparse.ArgumentParser()
 arguments.add_argument('-t', '-T', action='store', dest='uuid', help='Technique number ', required=True)
 arguments.add_argument('-testnumber', '-TESTNUMBER' '-TestNumber', action='store', dest='testnumber', required=False,
                        help='Test number, to view the number of a test pass -action showdetailsbrief')
-arguments.add_argument('-action', '-ACTION', '-Action', action='store', dest='action', required=False, help='''Actions:
-getprereqs (Install all prereqs of a test)
-showdetails (Show details of a technique)
-showdetailsbrief (Show the avaliable tests)
-clenup (Execute the clenup command)
-''')
 arguments.add_argument('-except_time', '-Except_Time', '-EXCEPT_TIME', action='store', dest='except_time', required=False, default=120,
                 help='This parameter is used to define the max time that the program wait until generate a exception')
+arguments.add_argument('--cleanup', '-c', dest='cleanup', const=True, nargs='?')
+arguments.add_argument('-sdb', '--showdetailsbrief', dest='showdetailsbrief', const=True, nargs='?')
+arguments.add_argument('-sd', '--showdetails', dest='showdetails', const=True, nargs='?')
+arguments.add_argument('-gp', '--getprereqs', dest='getprereqs', const=True, nargs='?')
 
 parse = arguments.parse_args()
 
@@ -60,11 +60,24 @@ if re.match(r'T\d+(.\d+|)$', parse.uuid.upper()):
     
     class atomic:
         def __init__(self):
+            self.action = self.mode()
             self.uuid = parse.uuid
             self.testnumber = parse.testnumber
-            self.action = parse.action
             self.content = {}
             self.except_time = parse.except_time
+        
+        def mode(self):
+            if parse.cleanup:
+                return 'cleanup'
+            elif parse.showdetails:
+                return 'showdetails'
+            elif parse.showdetailsbrief:
+                return 'showdetailsbrief'
+            elif parse.getprereqs:
+                return 'getprereqs'
+            else:
+                print(Fore.RED + 'ERROR, PASS AN ARGUMENT', Style.RESET_ALL)
+                exit(0)
 
         def main(self):
             self.requests()
