@@ -92,10 +92,9 @@ class atomic:
     def main(self):
         self.requests()
         if self.control['testnumber']:
-            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}]{yaml.safe_load(self.content)["attack_technique"]} {yaml.safe_load(self.content)["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}]{yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
         else:
-            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {yaml.safe_load(self.content)["attack_technique"]}\n')
-        print(self.control)
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {yaml.safe_load(self.control["content"])["attack_technique"]}\n')
         if self.control['action'] == 'execult':
             initial_time = time.time()
             mult = multiprocessing.Process(target=self.execute)
@@ -115,14 +114,14 @@ class atomic:
             f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.control["uuid"]}/{self.control["uuid"]}.yaml')
 
         if resp.status_code == 200:
-            self.content = resp.content.decode('utf-8')
+            self.control['content'] = resp.content.decode('utf-8')
 
         else:
             print('Technique not found, try again....')
             exit()
 
     def execute(self):
-        content = yaml.safe_load(self.content)
+        content = yaml.safe_load(self.control['content'])
 
 
         if self.control['action'] == 'execult':
@@ -148,13 +147,13 @@ class atomic:
             self.getprereqs()
 
         elif self.control['action'].lower() == 'showdetails':
-            print(self.content)
+            print(self.control['content'])
 
         elif self.control['action'].lower() == 'showdetailsbrief':
             self.showdetailsbrief()
 
     def getprereqs(self):
-        content = yaml.safe_load(self.content)
+        content = yaml.safe_load(self.control['content'])
         dependencies = content['atomic_tests'][int(self.control["testnumber"]) - 1]['dependencies']
         
         try:
@@ -185,7 +184,7 @@ class atomic:
                     shell=True)
 
     def input_arguments(self, command):
-        input_arguments = yaml.safe_load(self.content)['atomic_tests'][int(self.control["testnumber"]) - 1]['input_arguments']
+        input_arguments = yaml.safe_load(self.control['content'])['atomic_tests'][int(self.control["testnumber"]) - 1]['input_arguments']
         parser = re.findall('#{\w*}', command)
         a = [input_arguments[x.replace('#{', '').replace('}', '')]['default'] for x in parser]
 
@@ -217,7 +216,7 @@ class atomic:
         return f'{path}{path_file}'
 
     def showdetailsbrief(self):
-        yaml_contet = yaml.safe_load(self.content)['atomic_tests']
+        yaml_contet = yaml.safe_load(self.control['content'])['atomic_tests']
         [print(f'[{c + 1}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if
             system.split('-')[0] in yaml_contet[c]['supported_platforms']]
 
