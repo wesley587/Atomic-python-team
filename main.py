@@ -1,8 +1,3 @@
-##################################################################
-# Atomic-python-team by: wesley587(https://github.com/wesley587) #
-##################################################################
-
-
 import subprocess
 import os
 import time
