@@ -1,12 +1,11 @@
+## Atomic python team
 
 
 ![python-4785225_1280](https://user-images.githubusercontent.com/72465364/115910383-26768e00-a443-11eb-9875-578fa5825de3.jpg)
+![shield](https://img.shields.io/badge/python-3.8.5-orange)
+![shield](https://img.shields.io/badge/platform-windows%20%7C%20linux-orange)
 
 
-
-
-
-## Atomic python team
 
 Atomic python team is a script that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) using a shell to run,it is necessary to have the python intalled on your envovironment
 
