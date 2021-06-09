@@ -30,6 +30,12 @@ if first_execution:
         print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Successful instaling requests module')
     else:
         print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] requests module already exists')
+    
+    try:
+        os.mkdir('cache')
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Cache folder created')
+    except:
+        pass
 
         
 
@@ -77,7 +83,7 @@ class atomic:
     
     def cache(self):
         data = dumps(self.control)
-        with open(f'{self.control["date"]}.json', 'w') as file:
+        with open(f'cache/{self.control["date"]}.json', 'w') as file:
             print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Salving cache')
             file.write(data)
             print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Cache salved')
@@ -239,7 +245,7 @@ class atomic:
 
     def PathToAtomicsFolder(self, default):
         path = subprocess.check_output(['cd'], shell=True)
-        path = path.decode('utf-8').replace('\r', '').replace('\n', '') + '/cache'
+        path = path.decode('utf-8').replace('\r', '').replace('\n', '')
         path_file = default.replace("PathToAtomicsFolder", "").replace('\\', '/')
         url = f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics{default}'
         resp = requests.get(url)
