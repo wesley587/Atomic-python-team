@@ -59,8 +59,21 @@ arguments.add_argument('-gp', '--getprereqs', dest='getprereqs', const=True, nar
 class atomic:
     def __init__(self):
         parse = arguments.parse_args()
+        self.validate_args(parse)
+
         self.control = self.generate_dict(parse)
         self.except_time = parse.except_time
+    
+    def validate_args(self, parse):
+        a = parse.showdetailsbrief
+        b = parse.showdetails
+        c = parse.cleanup
+        d = parse.testnumber
+        e = parse.getprereqs
+        if a and b or a and c or a and d or a and e or b and c or b and d or b and e or c and e or e:
+            print(f'[{Fore.RED + "+" + Style.RESET_ALL}] INVALID ARGS')
+            exit(1)
+        
     
     def cache(self):
         data = dumps(self.control)
