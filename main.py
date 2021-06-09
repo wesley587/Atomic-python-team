@@ -1,10 +1,13 @@
 import subprocess
 import os
 import time
+import re
 import argparse
 import multiprocessing
 from platform import platform
 from colorama import Fore, Style
+from datetime import datetime
+from json import dumps
 
 first_execution = True
 system = platform().lower()
@@ -59,11 +62,20 @@ class atomic:
         self.control = self.generate_dict(parse)
         self.except_time = parse.except_time
     
+    def cache(self):
+        data = dumps(self.control)
+        with open(f'{self.control["date"]}.json', 'w') as file:
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Salving cache')
+            file.write(data)
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Cache salved')
+
+    
     def generate_dict(self, parse):
         values_dict = dict()
         values_dict['action'] = self.mode(parse)
         values_dict['uuid'] = parse.uuid
         values_dict['testnumber'] = parse.testnumber
+        values_dict['date'] = datetime.now().strftime('%d-%m-%y %H:%M:%S')
         return values_dict
         
     def mode(self, parse):
@@ -83,11 +95,8 @@ class atomic:
 
     def main(self):
         self.requests()
-        if self.control['testnumber']:
-            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}]{yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
-        else:
-            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {yaml.safe_load(self.control["content"])["attack_technique"]}\n')
         if self.control['action'] == 'execult':
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Runing: {yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
             initial_time = time.time()
             mult = multiprocessing.Process(target=self.execute)
             mult.start()
@@ -99,22 +108,26 @@ class atomic:
                     break
                 time.sleep(1)
         elif self.control['action']:
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {self.control["uuid"]} {self.control["action"]}')
             self.parsing()
+        self.cache()
 
     def requests(self):
         resp = requests.get(
             f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{self.control["uuid"].upper()}/{self.control["uuid"].upper()}.yaml')
 
         if resp.status_code == 200:
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] {self.control["uuid"]} is valid')
+
             self.control['content'] = resp.content.decode('utf-8')
 
         else:
+            print(f'[{Fore.RED + "+" + Style.RESET_ALL}] {self.control["uuid"]} is invalid')
             print(Fore.RED + 'Technique not found, try again....' + Style.RESET_ALL)
-            exit()
+            exit(0)
 
     def execute(self):
         content = yaml.safe_load(self.control['content'])
-
 
         if self.control['action'] == 'execult':
             command = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['command'].split('\n')
@@ -123,15 +136,16 @@ class atomic:
             command = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['cleanup_command'].split('\n')
 
         shell = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['name']
-
-        command_exit = [subprocess.check_output(['powershell.exe',
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Runining on: {shell}')
+        print(f'\n          ----------{Fore.BLUE + " OUTPUT " + Style.RESET_ALL}----------\n')
+        output = [subprocess.check_output(['powershell.exe',
             x if not re.findall('#{\w*}', x) else self.input_arguments(
             x)], shell=True) if shell == 'powershell' else subprocess.check_output(
             [x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in
             command if
             x != '']
 
-        [print(x.decode('windows-1252')) for x in command_exit]
+        [print(x.decode('windows-1252')) for x in output]
 
 
     def parsing(self):
@@ -139,12 +153,15 @@ class atomic:
             self.getprereqs()
 
         elif self.control['action'].lower() == 'showdetails':
+            print(f'\n     ---------- {Fore.BLUE + "DETAILS" + Style.RESET_ALL} ----------\n')
             print(self.control['content'])
 
         elif self.control['action'].lower() == 'showdetailsbrief':
+            print(f'\n     ---------- {Fore.BLUE + "DETAILS BRIEF" + Style.RESET_ALL} ----------\n')
             self.showdetailsbrief()
 
     def getprereqs(self):
+        print(f"[{Fore.GREEN + '+' + Style.RESET_ALL}] Instaling depedencies")
         content = yaml.safe_load(self.control['content'])
         dependencies = content['atomic_tests'][int(self.control["testnumber"]) - 1]['dependencies']
         
@@ -154,7 +171,10 @@ class atomic:
         except:
             shell = 'powershell'
         
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Runining on: {shell}')
         for dependencie in dependencies:
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Dependencie description: {dependencie["description"]}')
+
             prep_comm = dependencie['prereq_command']
             get_prep_comm = dependencie['get_prereq_command']
         
@@ -164,16 +184,36 @@ class atomic:
                     subprocess.check_output(['powershell.exe', prep_comm if not re.findall('#{\w*}',
                                                             prep_comm) else self.input_arguments(
                         prep_comm)], shell=True)
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Successful in running prereq_command')
+
         
                 except:
+                    print(f'[{Fore.RED + "+" + Style.RESET_ALL}] Fail in running prereq_command')
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Trying run get_prereq_command')
                     [subprocess.check_output(
                         ['powershell.exe', x if not re.findall('#{\w*}', x) else self.input_arguments(x)],
                         shell=True) for x in get_prep_comm.split('\n')]
-                    print(get_prep_comm)
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Success in running get_prereq_command')
+
             else:
                 subprocess.check_output(
                     [prep_comm if not re.findall('#{\w*}', prep_comm) else self.input_arguments(prep_comm)],
                     shell=True)
+                try:
+                    subprocess.check_output([prep_comm if not re.findall('#{\w*}',
+                                                            prep_comm) else self.input_arguments(
+                        prep_comm)], shell=True)
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Successful in running prereq_command')
+
+        
+                except:
+                    print(f'[{Fore.RED + "+" + Style.RESET_ALL}] Fail in running prereq_command')
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Trying run get_prereq_command')
+                    [subprocess.check_output(
+                        [x if not re.findall('#{\w*}', x) else self.input_arguments(x)],
+                        shell=True) for x in get_prep_comm.split('\n')]
+                    print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Success in running get_prereq_command')
+
 
     def input_arguments(self, command):
         input_arguments = yaml.safe_load(self.control['content'])['atomic_tests'][int(self.control["testnumber"]) - 1]['input_arguments']
@@ -195,24 +235,21 @@ class atomic:
 
         try:
             dirs = os.path.join(path, path_file[local_i + 1: local_f])
-            print(dirs)
             os.makedirs(dirs)
-        
+            print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Folder created: {dirs}')
         except:
             pass
-        
+        Print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Creating file on: {path}{path_file}')
         with open(f'{path}{path_file}', 'w') as file:
             file.write(resp.content.decode('utf-8'))
-            file.close()
         path_file = path_file.replace("/", "\\")
         return f'{path}{path_file}'
 
     def showdetailsbrief(self):
         yaml_contet = yaml.safe_load(self.control['content'])['atomic_tests']
-        [print(f'[{c + 1}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if
+        [print(f'[{Fore.BLUE + f"{c + 1}" + Style.RESET_ALL}] {yaml_contet[c]["name"]}') for c in range(0, len(yaml_contet)) if
             system.split('-')[0] in yaml_contet[c]['supported_platforms']]
-
+        print('')
 if __name__ == '__main__':
     start = atomic()
     start.main()
-
