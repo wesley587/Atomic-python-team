@@ -53,14 +53,14 @@ import yaml
 
 arguments = argparse.ArgumentParser()
 arguments.add_argument('-t', '-T', action='store', dest='uuid', help='Technique number ', required=True)
-arguments.add_argument('-testnumber', '-TESTNUMBER' '-TestNumber', action='store', dest='testnumber', required=False,
+arguments.add_argument('-tn', '-testnumber', '-TESTNUMBER' '-TestNumber', action='store', dest='testnumber', required=False,
                        help='Test number, to view the number of a test pass -action showdetailsbrief')
 arguments.add_argument('-except_time', '-Except_Time', '-EXCEPT_TIME', action='store', dest='except_time', required=False, default=120,
                 help='This parameter is used to define the max time that the program wait until generate a exception')
-arguments.add_argument('--cleanup', '-c', dest='cleanup', const=True, nargs='?')
-arguments.add_argument('-sdb', '--showdetailsbrief', dest='showdetailsbrief', const=True, nargs='?')
-arguments.add_argument('-sd', '--showdetails', dest='showdetails', const=True, nargs='?')
-arguments.add_argument('-gp', '--getprereqs', dest='getprereqs', const=True, nargs='?')
+arguments.add_argument('--cleanup', '-c', dest='cleanup', const=True, nargs='?', help='It's used to activate the cleanup action of a testnumbe')
+arguments.add_argument('-sdb', '--showdetailsbrief', dest='showdetailsbrief', const=True, nargs='?', help='See the available technique for your environment')
+arguments.add_argument('-sd', '--showdetails', dest='showdetails', const=True, nargs='?', help='Show the details of a technique')
+arguments.add_argument('-gp', '--getprereqs', dest='getprereqs', const=True, nargs='?', help='Case a technique save a file in your environment use this command to delete')
 
 class atomic:
     def __init__(self):
