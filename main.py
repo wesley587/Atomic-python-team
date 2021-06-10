@@ -258,7 +258,7 @@ class atomic:
             print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Folder created: {dirs}')
         except:
             pass
-        Print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Creating file on: {path}{path_file}')
+        print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Creating file on: {path}{path_file}')
         with open(f'{path}{path_file}', 'w') as file:
             file.write(resp.content.decode('utf-8'))
         path_file = path_file.replace("/", "\\")
