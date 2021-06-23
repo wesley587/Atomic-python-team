@@ -76,7 +76,7 @@ class atomic:
         c = parse.cleanup
         d = parse.testnumber
         e = parse.getprereqs
-        if a and b or a and c or a and d or a and e or b and c or b and d or b and e or c and e or e:
+        if a and b or a and c or a and d or a and e or b and c or b and d or b and e or c and e:
             print(f'[{Fore.RED + "+" + Style.RESET_ALL}] INVALID ARGS')
             exit(1)
         
@@ -246,14 +246,13 @@ class atomic:
     def PathToAtomicsFolder(self, default):
         path = subprocess.check_output(['cd'], shell=True)
         path = path.decode('utf-8').replace('\r', '').replace('\n', '')
-        path_file = default.replace("PathToAtomicsFolder", "").replace('\\', '/')
-        url = f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/058b5c2423c4a6e9e226f4e5ffa1a6fd9bb1a90e/atomics{default}'
+        path_file = default.replace('\\', '/')
+        url = f'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics{default.replace("PathToAtomicsFolder", "")}'
+        print(url)
         resp = requests.get(url)
-        local_f, local_i = path_file.rfind('/'), path_file.find('/')
-        print(path_file[local_i + 1: local_f])
-
+        local_f = path_file.rfind('/')
         try:
-            dirs = os.path.join(path, path_file[local_i + 1: local_f])
+            dirs = os.path.join(path, path_file[: local_f])
             os.makedirs(dirs)
             print(f'[{Fore.GREEN + "+" + Style.RESET_ALL}] Folder created: {dirs}')
         except:
