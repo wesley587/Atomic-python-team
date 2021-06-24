@@ -73,9 +73,10 @@ python main.py -t T1220 -sd
 ```
 ### Instaling the Prereqs
 ```bash
-python main.py -t t1234 --Testnumber 1 --getprereqs
+python main.py -t t1234 --testnumber 1 --getprereqs
 ```
-```pythin main -t 1234 -tn 1 -gp
+```bash
+pythin main -t 1234 -tn 1 -gp
 ```
 
 #### Cleanp command
