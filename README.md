@@ -71,7 +71,7 @@ python main.py -t T1220 --showdetails
 ```bash
 python main.py -t T1220 -sd
 ```
-### Instaling the Prereqs
+#### Instaling the Prereqs
 ```bash
 python main.py -t t1234 --testnumber 1 --getprereqs
 ```
