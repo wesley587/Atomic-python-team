@@ -156,12 +156,27 @@ class atomic:
         shell = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['name']
         print(f'[Info] Runining on: {shell}')
         print(f'\n          ---------- OUTPUT ----------\n')
-        output = [subprocess.check_output(['powershell.exe',
-            x if not re.findall('#{\w*}', x) else self.input_arguments(
-            x)], shell=True) if shell == 'powershell' else subprocess.check_output(
-            [x if not re.findall('#{\w*}', x) else self.input_arguments(x)], shell=True) for x in
-            command if
-            x != '']
+
+        output = list()
+        for x in command:
+            if x:
+                
+                if not re.findall('#{\w*}', x):
+                    if shell == 'powershell':
+                        x = ('powershell.exe ' + x).split()
+                        output.append(subprocess.check_output(x))
+                    else:
+                        print(x)
+                        x = x.split()
+                        output.append(subprocess.check_output(x, shell=True))
+                else:
+                    if shell == 'powershell':
+                        x = ('powershell.exe ' + self.input_arguments(x)).split()
+                        output.append(subprocess.check_output(x))
+                    else:
+                        x = self.input_arguments(x).split()
+                        output.append(subprocess.check_output([self.input_arguments(x)], shell=True))
+
 
         [print(x.decode('windows-1252')) for x in output]
 
