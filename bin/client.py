@@ -59,7 +59,7 @@ import requests
 import yaml
 
 ip = '0.0.0.0'
-port = 10000
+port = 20000
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((ip, port))
@@ -68,39 +68,43 @@ print(buffer)
 
 parser = buffer.replace('-', '.-').split('.')
 
-def check_command_name(arg):
-    commands = {'uiid': ['-t', '--testnumber', '-T'],
-            'testnuber': ['-tn', '--testnumber'],
-            'except_time': ['-ex', '--except_time'],
-            'cleanup': ['-c', '--cleanup'],
-            'showdetailsbrief': ['-sdb', '--showdetailsbrief'],
-            'showdetails': ['-sd', '--showdetails'],
-            'getprereqs': ['-gp', '--getprereqs']}
-    for k, v in commands.items():
-        for c in v:
-            if c in arg:
-                return arg.replace(c, k)
 
-args = {}
-for x in parser:
-    x = check_command_name(x)
-    if x:
-        if len(x.split()) > 1:
-           x = x.split() 
-           args[x[0]] = x[1]
-        else:
-            args[x] = True
-print(args)
-exit()
-print(args)
+
 class atomic:
     def __init__(self):
-        self.validate_args(buffer)
-        parse = arguments.parse_args()
-        self.validate_args(parse)
-
-        self.control = self.generate_dict(parse)
-        self.except_time = parse.except_time
+        self.control = self.generate_control(buffer)
+        print(self.control)
+        self.except_time = self.control['except_time']
+    
+    def generate_control(self, buffer):
+        args = {'date': datetime.now().strftime('%d-%m-%Y -%H-%M-%S'),'except_time': 120}
+        for x in parser:
+            if '-tn' in x:
+                x = x.replace('-tn', 'testnumber')
+                print(x)
+                args['action'] = 'execute'
+            else:
+                x = self.check_command_name(x)
+            if x:
+                if len(x.split()) > 1:
+                    x = x.split() 
+                    args[x[0]] = x[1]
+                else:
+                    args['action'] = x
+        return args
+    
+    def check_command_name(self, arg):
+        commands = {'uuid': ['-t', '--testnumber', '-T'],
+                'testnuber': ['-tn', '--testnumber'],
+                'except_time': ['-ex', '--except_time'],
+                'cleanup': ['-c', '--cleanup'],
+                'showdetailsbrief': ['-sdb', '--showdetailsbrief'],
+                'showdetails': ['-sd', '--showdetails'],
+                'getprereqs': ['-gp', '--getprereqs']}
+        for k, v in commands.items():
+            for c in v:
+                if c in arg:
+                    return arg.replace(c, k)
     
     def validate_args(self, parse):
         a = parse.showdetailsbrief
@@ -130,23 +134,24 @@ class atomic:
         return values_dict
         
     def mode(self, parse):
-        if parse.cleanup:
-            return 'cleanup'
-        elif parse.showdetails:
-            return 'showdetails'
-        elif parse.showdetailsbrief:
-            return 'showdetailsbrief'
-        elif parse.getprereqs:
-            return 'getprereqs'
-        elif parse.testnumber:
-            return 'execult'
+        for k, v in parse.items():
+            if parse.cleanup:
+                return 'cleanup'
+            elif parse.showdetails:
+                return 'showdetails'
+            elif parse.showdetailsbrief:
+                return 'showdetailsbrief'
+            elif parse.getprereqs:
+                return 'getprereqs'
+            elif parse.testnumber:
+                return 'execute'
         else:
             print('[Error] ERROR, PASS AN ARGUMENT')
             exit(0)
 
     def main(self):
         self.requests()
-        if self.control['action'] == 'execult':
+        if self.control['action'] == 'execute':
             print(f'[*] Runing: {yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
             initial_time = time.time()
             mult = multiprocessing.Process(target=self.execute)
@@ -181,7 +186,7 @@ class atomic:
     def execute(self):
         content = yaml.safe_load(self.control['content'])
 
-        if self.control['action'] == 'execult':
+        if self.control['action'] == 'execute':
             command = content['atomic_tests'][int(self.control["testnumber"]) - 1]['executor']['command'].split('\n')
 
         else:
