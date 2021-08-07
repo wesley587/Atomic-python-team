@@ -1,4 +1,17 @@
-def generate_control(buffer):
+def generate_control(args):
+    control = dict()
+    if args.listen and not args.create:
+        control['action'] = 'listen'
+    elif args.create:
+        control['action'] = 'create'
+        control['path'] = args.path
+    else:
+        return '[ERROR] Exeption, Arguments invalids.'
+    control['ip'] = args.ip
+    control['port'] = args.port
+    return control
+
+def generate_atomic_map(buffer):
     from datetime import datetime
     args = {'date': datetime.now().strftime('%d-%m-%Y -%H-%M-%S'),'except_time': 120, 'action': 'execute'}
     for x in buffer.replace('-', '.-').split('.'):
