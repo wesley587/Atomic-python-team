@@ -148,19 +148,8 @@ class atomic:
     def parsing(self):
         if self.control['action'].lower() == 'getprereqs':
             self.getprereqs()
-
-        elif self.control['action'].lower() == 'showdetails':
-            client_output = f'\n     ---------- DETAILS ----------\n'
-            print(self.control['content'])
-            client_socket.send((client_output + self.control['content']).encode())
-
-        elif self.control['action'].lower() == 'showdetailsbrief':
-            client_output = f'\n     ---------- DETAILS BRIEF ----------\n'
-            dt_brief = self.showdetailsbrief()
-            print(dt_brief)
-            for x in self.showdetailsbrief():
-                client_output += '\n' + x
-            client_socket.send(client_output.encode())
+        else:
+            client_socket.send(b'[ERROR] Exception, try again...')
             
     def getprereqs(self):
         print(f"[*] Instaling depedencies")
@@ -246,12 +235,6 @@ class atomic:
         path_file = path_file.replace("/", "\\")
         return f'{path}{path_file}'
 
-    def showdetailsbrief(self):
-        yaml_contet = yaml.safe_load(self.control['content'])['atomic_tests']
-        dt_brief = [f'[{c + 1}] {yaml_contet[c]["name"]}' for c in range(0, len(yaml_contet)) if
-            system.split('-')[0] in yaml_contet[c]['supported_platforms']]
-        print(dt_brief)
-        return dt_brief
 
 if __name__ == '__main__':
     ip = 'IP_SERVER'

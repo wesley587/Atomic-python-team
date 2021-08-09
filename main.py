@@ -89,7 +89,7 @@ class server:
 
 
 if __name__ == '__main__':
-    first_execution = False
+    first_execution = True
     if first_execution:
         print(f'[Info] Checking if pyyaml module exist')
         validation = os.popen('pip3 show pyyaml').read()
@@ -99,6 +99,13 @@ if __name__ == '__main__':
             print(f'[Info] Successful instaling pyyaml module')
         else:
             print(f'[Info] pyyaml module already exists')
+            
+        with open(os.path.basename(__file__), 'r') as file:
+            content = file.read()
+            content = content.replace('first_execution = False', 'first_execution = True')
+        
+        with open(os.path.basename(__file__), 'w') as file:
+            file.write(content)
     import yaml
     
     
