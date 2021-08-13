@@ -1,4 +1,4 @@
-# Atomic python team
+# Atomic python team (BETA)
 
 
 ![python-4785225_1280](https://user-images.githubusercontent.com/72465364/115910383-26768e00-a443-11eb-9875-578fa5825de3.jpg)
@@ -7,7 +7,7 @@
 
 
 
-Atomic python team is a Python Programing that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics), runs remotely agents to use [atomic techniques](), it's necessary to have the python installed on your environment.
+Atomic python team is a Python Programing that simulates the [***Atomic Red Team***](https://github.com/redcanaryco/atomic-red-team), runs remotely agents to use [**Atomic Techniques**](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics), it's necessary to have the python installed on your environment.
 
 
 ## Server installation 
