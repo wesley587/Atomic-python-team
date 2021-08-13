@@ -1,6 +1,3 @@
-# Maintence coming soon new fetuares
-
-
 # Atomic python team
 
 
@@ -10,21 +7,48 @@
 
 
 
-Atomic python team is a script that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) using a shell to run,it is necessary to have the python intalled on your envovironment
+Atomic python team is a Python Programing that simulates the [***Atomic techniques***](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics), runs remotely agents to use [atomic techniques](), it's necessary to have the python installed on your environment.
 
 
-## Usage
-- Clone the repository or Copy and paste the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) in your enviroment
+## Server installation 
 
-#### Cloning repo
+- Download the Atomic-python team;
 
-```bash
-https://github.com/wesley587/Atomic-python-team.git
+- Open the port 55000 on your gateway or router. If you need to change this number go to [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) and edit the file
+
+## Client installation
+
+- Use the [***main.py***](https://github.com/wesley587/Atomic_python_team/blob/main/main.py) -c to create a client, you'll need to run the script in the host target
+
+## Usage 
+
+1º The first step is rum the main.py and make the libs installations
+
+#### commands table
+
+| Commands | Description | Usage |
+| --- | --- | --- | 
+| -c, --creat | Used to creat an agent on host | python3 main.py -c | 
+| -p, --port | Used to especify the port number | python3 main.py -p ***port num*** | 
+| -ph, --path | Path to creat an agent | python3 main.py -ph ***/home/user*** |
+| -l, --listen | Used to especify that the file is on listening mode | python3 main.py -l | 
+| -ip, --ip | Server ip | python3 main.py -ip | 
+
+You can use mult commands on the same time 
+
+2º Creat an client, use the -c parameter to creat an agente on you environment
+
+```
+python3 main.py -c
 ```
 
-### Commands table
+3º Run the client
 
-| Command | Description | How to use |
+4º After that the client make conection with the server run the commands
+
+#### Commands table
+
+| Command | Description | Usage |
 | --- | --- | --- |
 | -h | It's used to see all parameters | -h, --help | 
 | -t | It's used to specify the technique number | -t or -T T1082 |
@@ -38,67 +62,17 @@ https://github.com/wesley587/Atomic-python-team.git
 
 ### Cache folder
 
-The cache folder is used to store the details about the previous execution, it's used a json with the date on the moment to save this cache
+The cache folder is used to store the details about the previous execution, it's used a json with the date of the moment to save this cache
 
 ### PathToAtomicsFolder
 
 This folder is used to save additional scripts that the technique used
 
+### bin folder
+
+The bin folder is used to store some tools 
 
 
-### examples 
-
-#### See the available technique for your environment using T1082
-
-``` bash
-python main.py -t T1082 --showdetailsbrief
-```
-
-```bash
-python main.py -t T1082 -sdb
-```
-
-#### Specify test number of techcinque T1082
-```bash
-python main.py -t T1082 --testnumber 10
-```
-
-```
-python main.py -t T1082 -tn 10
-```
-#### Seeing the datails
-
-```bash
-python main.py -t T1220 --showdetails
-```
-```bash
-python main.py -t T1220 -sd
-```
-#### Instaling the Prereqs
-```bash
-python main.py -t t1234 --testnumber 1 --getprereqs
-```
-```bash
-pythin main -t 1234 -tn 1 -gp
-```
-
-#### Cleanp command
-
-```bash
-python main.p -t T1220 --cleanup --testnumber 1
-```
-
-```bash
-python main.p -t T1220 -cn --testnumber 1
-```
-#### Changing the except_time
-```bash
-python main.py -t T1234 -TESTNUMBER 1 --except_time 100
-```
-
-```bash
-python main.py -t T1234 -TESTNUMBER 1 -ex 100
-```
 
 
 ## How to Contribute
