@@ -30,12 +30,13 @@ class server:
         print(f'[INFO] Listen on: {self.control["ip"]}/{self.control["port"]}')
         server.listen(5)
         
-        while True:
-            client_socket, addr = server.accept()
-            print(f'[INFO] Client addres: {addr[0]}/{addr[1]}')
-            
-            client_handler = Thread(target=self.client_handler, args=(client_socket, ))
-            client_handler.start()
+        client_socket, addr = server.accept()
+        print(f'[INFO] Client addres: {addr[0]}/{addr[1]}')
+                
+        print('------- To break send stop to sdtin --------')
+
+        client_handler = Thread(target=self.client_handler, args=(client_socket, ))
+        client_handler.start()
         
     
     def create_agent(self):
@@ -45,11 +46,11 @@ class server:
             file.write(script)
         
     def client_handler(self, client_socket):
-        print('------- To break send stop to sdtin --------')
         while True:
-            atomic = input('[INFO] Atomic techinique: ')
+            atomic = input('[INFO] Atomic technique: ')
             if not atomic or 'stop' in atomic:
                 break
+
             try:
                 control = generate_atomic_map(atomic)
                 print(control)
@@ -89,7 +90,7 @@ class server:
 
 
 if __name__ == '__main__':
-    first_execution = True
+    first_execution = False
     if first_execution:
         print(f'[Info] Checking if pyyaml module exist')
         validation = os.popen('pip3 show pyyaml').read()
@@ -102,7 +103,8 @@ if __name__ == '__main__':
             
         with open(os.path.basename(__file__), 'r') as file:
             content = file.read()
-            content = content.replace('first_execution = False', 'first_execution = True')
+            print(content)
+            content = content.replace('first_execution = False', 'first_execution = False')
         
         with open(os.path.basename(__file__), 'w') as file:
             file.write(content)
@@ -113,7 +115,7 @@ if __name__ == '__main__':
     args.add_argument('-l', '--listen', dest='listen', help='listen mode', default=True, nargs='?', const=True)
     args.add_argument('-ip', '--ip', dest='ip', default='0.0.0.0', type=str, help='Server ip')
     args.add_argument('-c', '--create', dest='create', help='Creat an agente', default=False, nargs='?', const=True)
-    args.add_argument('-p', '--port', dest='port', default=45000, type=int, help='Port that the server will be listening')
+    args.add_argument('-p', '--port', dest='port', default=55000, type=int, help='Port that the server will be listening')
     args.add_argument('-ph', '--path', dest='path', default=os.getcwd(), help='Path to creat a client')
     parse = args.parse_args()
     start = server()

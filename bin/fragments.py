@@ -61,11 +61,6 @@ import yaml
 
 
 class atomic:
-    def __init__(self, buffer):
-        self.control = loads(buffer)
-        print(self.control)
-        self.except_time = self.control['except_time']
-     
     def cache(self):
         data = dumps(self.control)
         with open(f'cache/{self.control["date"]}.json', 'w') as file:
@@ -75,24 +70,47 @@ class atomic:
         
 
     def main(self):
-        self.requests()
-        if self.control['action'] == 'execute':
-            print(f'[*] Runing: {yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
-            initial_time = time.time()
-            mult = multiprocessing.Process(target=self.execute)
-            mult.start()
+        self.first_connection()
 
-            while True:
-                if int(time.time() - initial_time) >= self.except_time:
-                    mult.terminate()
-                if not mult.is_alive():
-                    break
-                time.sleep(1)
-        elif self.control['action']:
-            print(f'[Info] {self.control["uuid"]} {self.control["action"]}')
-            self.parsing()
-        self.cache()
+        while True:
+            self.recv()
+
+            self.requests()
+            print(self.control)
+            if self.control['action'] == 'execute':
+                print(f'[*] Runing: {yaml.safe_load(self.control["content"])["attack_technique"]} {yaml.safe_load(self.control["content"])["atomic_tests"][int(self.control["testnumber"]) -1]["name"]}\n')
+                initial_time = time.time()
+                mult = multiprocessing.Process(target=self.execute)
+                mult.start()
+
+                while True:
+                    if int(time.time() - initial_time) >= self.except_time:
+                        mult.terminate()
+                    if not mult.is_alive():
+                        break
+                    time.sleep(1)
+            elif self.control['action']:
+                print(f'[Info] {self.control["uuid"]} {self.control["action"]}')
+                self.parsing()
+            self.cache()
+
+    def recv(self):
+        buffer = self.client_socket.recv(1028).decode()
         
+        print(f'[INFO] We receiv: {buffer}')
+        
+        parser = buffer.replace('-', '.-').split('.')
+        self.control = loads(buffer)
+        
+        print(self.control)
+        self.except_time = self.control['except_time']
+    
+    def first_connection(self):
+        ip = 'IP_SERVER'
+        port = 'PORT_SERVER'
+
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((ip, port))
 
     def requests(self):
         resp = requests.get(
@@ -106,7 +124,7 @@ class atomic:
         else:
             print(f'[Info] {self.control["uuid"]} is invalid')
             print('[Error] Technique not found, try again....')
-            client_socket.send('[Error] Technique not found, try again....').encode()
+            self.client_socket.send('[Error] Technique not found, try again....').encode()
             exit(0)
 
     def execute(self):
@@ -142,14 +160,12 @@ class atomic:
                         x = self.input_arguments(x).split()
                         output.append(subprocess.check_output([self.input_arguments(x)], shell=True))
 
-        [client_socket.send((client_output + x.decode('windows-1252')).encode()) for x in output]
+        [self.client_socket.send((client_output + x.decode('windows-1252')).encode()) for x in output]
         
 
     def parsing(self):
         if self.control['action'].lower() == 'getprereqs':
             self.getprereqs()
-        else:
-            client_socket.send(b'[ERROR] Exception, try again...')
             
     def getprereqs(self):
         print(f"[*] Instaling depedencies")
@@ -235,17 +251,8 @@ class atomic:
         path_file = path_file.replace("/", "\\")
         return f'{path}{path_file}'
 
-
 if __name__ == '__main__':
-    ip = 'IP_SERVER'
-    port = 'PORT_SERVER'
-
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((ip, port))
-    buffer = client_socket.recv(1028).decode()
-    print(f'[INFO] We receiv: {buffer}')
-
-    parser = buffer.replace('-', '.-').split('.')
-    start = atomic(buffer)
+    start = atomic()
     start.main()
+
 '''
